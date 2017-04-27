@@ -1,5 +1,9 @@
 (ns status-term.display
   (:require [status-term.internet :as i]
+            [clj-time.core :as tt]
+            [clj-time.coerce :as c]
+            [clj-time.format :as f]
+            [clj-time.local :as l]
             [lanterna.terminal :as t]
             [lanterna.screen :as s]))
 
@@ -172,12 +176,30 @@
              :y origin-y
              :w width
              :h height}
-            {:title (str origin-y)})
+            {:title title})
     (doall (map-indexed #(bargraph-row {:x bar-x
                                  :y (+ bar-y (* %1 3))
                                  :w width :h height}
                                 %2)
                         bars))))
+
+(defn k->f
+  "Converts a temperature from kelvin to fahrenheight"
+  [k]
+  (int (- (* k (/ 9 5)) 459.67)))
+
+(defn k->c
+  "Converts a temperature from kelvin to celsius"
+  [k]
+  (int (- k 273.15)))
+
+(defn format-time
+  [unformatted-time]
+  (let [joda (l/to-local-date-time (c/from-long unformatted-time))
+        hour (tt/hour joda)
+        minute (tt/minute joda)]
+    (str hour ":" minute)))
+
 
 (defn weather
   [location data]
@@ -185,9 +207,44 @@
         origin-y (:y location)
         origin-w (:w location)
         origin-h (:h location)
-        zipcode (:zip data)]
-    (window location {:title (str "Weather - " zipcode)})
-    (write (inc origin-x) (inc origin-y) (i/get-weather zipcode))))
+        zip (:zip data)
+        forcast (i/get-weather zip)
+        weather (first (:weather forcast))
+        main-forcast (:main weather)
+        description (:description weather)
+        city (:name forcast)
+        clouds (:clouds forcast)
+        sys (:sys forcast)
+        sunrise (format-time (:sunrise sys))
+        sunset (format-time (:sunset sys))
+        base (:base forcast)
+        main (:main forcast)
+        temp-k (:temp main)
+        temp-f (k->f temp-k)
+        temp-c (k->c temp-k)
+        temp-min-k (:temp_min main)
+        temp-min-f (k->f temp-k)
+        temp-min-c (k->c temp-k)
+        temp-max-k (:temp_max main)
+        temp-max-f (k->f temp-max-k)
+        temp-max-c (k->c temp-max-k)
+        humidity (:humidity main)
+        visibility (:visibility forcast)
+        coord (:coord forcast)]
+    (window location {:title (str "Weather - " city)})
+    (write (inc origin-x) (+ 2 origin-y) (str " " main-forcast " - " description))
+    (write (inc origin-x) (+ 4 origin-y) (str "   Current Temp: " temp-f "\u00b0F/"
+                                              temp-c "\u00b0C"))
+    (write (inc origin-x) (+ 5 origin-y) (str "           High: "
+                                              temp-max-f "\u00b0F/"
+                                              temp-max-c "\u00b0C"))
+    (write (inc origin-x) (+ 6 origin-y) (str "            Low: "
+                                              temp-min-f "\u00b0F/"
+                                              temp-min-c "\u00b0C"))
+    (write (inc origin-x) (+ 8 origin-y) (str "   Humidity: " humidity "%"))
+    (write (inc origin-x) (+ 10 origin-y) (str "   Sunrise: " sunrise))
+    (write (inc origin-x) (+ 11 origin-y) (str "    Sunset: " sunset))
+    ))
 
 (defn develop
   "Some basic tests of the systems."
@@ -223,7 +280,7 @@
                         {:title "Yellow!"
                          :val 20
                          :color :yellow}]})
-    (weather {:x x4 :y y4 :w width :h height}
-             {:zip 21061})
+    (weather {:x x1 :y y1 :w (* 2 width) :h height}
+             {:zip "21061,us"})
     (refresh)
     (t/get-key-blocking TERM)))
