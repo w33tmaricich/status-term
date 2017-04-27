@@ -1,5 +1,6 @@
 (ns status-term.display
-  (:require [lanterna.terminal :as t]
+  (:require [status-term.internet :as i]
+            [lanterna.terminal :as t]
             [lanterna.screen :as s]))
 
 ;(defstruct s-LOCATION
@@ -183,8 +184,10 @@
   (let [origin-x (:x location)
         origin-y (:y location)
         origin-w (:w location)
-        origin-h (:h location)]
-    (window location {:title "Weather"})))
+        origin-h (:h location)
+        zipcode (:zip data)]
+    (window location {:title (str "Weather - " zipcode)})
+    (write (inc origin-x) (inc origin-y) (i/get-weather zipcode))))
 
 (defn develop
   "Some basic tests of the systems."
@@ -221,6 +224,6 @@
                          :val 20
                          :color :yellow}]})
     (weather {:x x4 :y y4 :w width :h height}
-             {})
+             {:zip 21061})
     (refresh)
     (t/get-key-blocking TERM)))
