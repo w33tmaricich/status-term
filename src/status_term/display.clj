@@ -163,20 +163,28 @@
                  (:h location))
         max-x (+ origin-x width)
         max-y (+ origin-y height)
-        center-x (int (/ max-x 2))
-        center-y (int (/ max-y 2))
+        center-x (+ origin-x (/ width 2))
+        center-y (+ origin-y (/ height 2))
         bar-x (+ t-width origin-x)
         bar-y (- center-y (/ graph-height 2))]
     (window {:x origin-x
              :y origin-y
              :w width
              :h height}
-            {:title title})
+            {:title (str origin-y)})
     (doall (map-indexed #(bargraph-row {:x bar-x
                                  :y (+ bar-y (* %1 3))
                                  :w width :h height}
                                 %2)
                         bars))))
+
+(defn weather
+  [location data]
+  (let [origin-x (:x location)
+        origin-y (:y location)
+        origin-w (:w location)
+        origin-h (:h location)]
+    (window location {:title "Weather"})))
 
 (defn develop
   "Some basic tests of the systems."
@@ -185,8 +193,12 @@
   (let [window-size (t/get-size TERM)
         window-max [(dec (first window-size))
                     (dec (second window-size))]
-        center-x (/ (first window-max) 2)
-        center-y (/ (second window-max) 2)]
+        width (/ (first window-max) 2)
+        height (/ (second window-max) 2)
+        x1 0 y1 0
+        x2 (inc width) y2 y1
+        x3 x1 y3 (inc height)
+        x4 (inc width) y4 (inc height)]
     ;(fill-color {:x 10 :y 1 :w 20 :h 3} :red)
     ;(box {:x 0 :y 0 :h 40 :w 20})
     ;(bar {:x 10 :y 10 :w 20 :h 3}
@@ -197,10 +209,10 @@
                   ;{:title "2017-04-23 (4)"
                    ;:val 5
                    ;:color :green})
-    (bar-graph {:x 0 :y 0 :w 0 :h 0}
+    (bar-graph {:x x3 :y y3 :w width :h height}
                {:title "Bar graph test"
                 :items [{:title "Long line"
-                         :val 40
+                         :val 15
                          :color :red}
                         {:title "2017-04-23"
                          :val 4
@@ -208,5 +220,7 @@
                         {:title "Yellow!"
                          :val 20
                          :color :yellow}]})
+    (weather {:x x4 :y y4 :w width :h height}
+             {})
     (refresh)
     (t/get-key-blocking TERM)))
