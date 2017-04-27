@@ -243,8 +243,29 @@
                                               temp-min-c "\u00b0C"))
     (write (inc origin-x) (+ 8 origin-y) (str "   Humidity: " humidity "%"))
     (write (inc origin-x) (+ 10 origin-y) (str "   Sunrise: " sunrise))
-    (write (inc origin-x) (+ 11 origin-y) (str "    Sunset: " sunset))
-    ))
+    (write (inc origin-x) (+ 11 origin-y) (str "    Sunset: " sunset))))
+
+;(defn cloudy\c
+(defn ascii-sunny
+  "Draws an ascii art sun!"
+  [location]
+  (let [x (:x location)
+        y (:y location)
+        ]
+    (write (+ 4 x) y "|")
+    (write (+ 2 x) (+ 1 y) "\\")
+    (write (+ 6 x) (+ 1 y) "/")
+    (write (+ 4 x) (+ 1 y) "_")
+    (write x (+ 2 y) "-")
+    (write (+ 1 x) (+ 2 y) "=")
+    (write (+ 3 x) (+ 2 y) "(")
+    (write (+ 4 x) (+ 2 y) "_")
+    (write (+ 5 x) (+ 2 y) ")")
+    (write (+ 7 x) (+ 2 y) "=")
+    (write (+ 8 x) (+ 2 y) "-")
+    (write (+ 6 x) (+ 3 y) "\\")
+    (write (+ 2 x) (+ 3 y) "/")
+    (write (+ 4 x) (+ 4 y) "|")))
 
 (defn develop
   "Some basic tests of the systems."
@@ -269,18 +290,19 @@
                   ;{:title "2017-04-23 (4)"
                    ;:val 5
                    ;:color :green})
-    (bar-graph {:x x3 :y y3 :w width :h height}
-               {:title "Bar graph test"
-                :items [{:title "Long line"
-                         :val 15
-                         :color :red}
-                        {:title "2017-04-23"
-                         :val 4
-                         :color :green}
-                        {:title "Yellow!"
-                         :val 20
-                         :color :yellow}]})
-    (weather {:x x1 :y y1 :w (* 2 width) :h height}
-             {:zip "21061,us"})
+    ;(bar-graph {:x x3 :y y3 :w width :h height}
+               ;{:title "Bar graph test"
+                ;:items [{:title "Long line"
+                         ;:val 15
+                         ;:color :red}
+                        ;{:title "2017-04-23"
+                         ;:val 4
+                         ;:color :green}
+                        ;{:title "Yellow!"
+                         ;:val 20
+                         ;:color :yellow}]})
+    ;(weather {:x x4 :y y4 :w width :h height}
+             ;{:zip "21061,us"})
+    (ascii-sunny {:x 0 :y 0})
     (refresh)
     (t/get-key-blocking TERM)))
