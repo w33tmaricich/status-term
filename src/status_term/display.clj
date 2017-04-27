@@ -85,7 +85,7 @@
         width (:w location)
         height (:h location)
         spaces (repeat-string " " width)
-        ys (range y height)]
+        ys (range y (+ y height))]
     (dorun (map #(write x % spaces {:bg color}) ys))))
 
 (defn window
@@ -104,20 +104,79 @@
 (defn bargraph-row
   "a row of a bar graph"
   [location info]
-  (let [center-x (:x location)
+  (let [title (str (:title info) " ")
+        title-length (count title)
+        center-x (:x location)
         center-y (inc (:y location))
         seperator (repeat-string THIN-VERTICAL-LINE 3)
+        scale 1
         bar-x (+ center-x 2)
         bar-y center-y
-        title (:title info)
-        title-length (count title)
+        bar-w (* scale (:val info))
         title-x (- center-x title-length)
-        title-y center-y]
+        title-y (+ 1 center-y)]
+    (write title-x title-y title)
     (write-vertical center-x
                     center-y
                     seperator)
-    (bar {:x bar-x :y bar-y :w (:w location) :h 3}
+    (bar {:x bar-x :y bar-y :w bar-w :h 3}
          {:color (:color info)})))
+
+(defn title-width
+  "Calculates the total width of a bargraph row."
+  [row]
+  (+ (count (:title row))
+     3))
+
+(defn bar-width
+  [row]
+  (+ (:val row)
+     3))
+
+(defn largest-title
+  "Finds the max title-width of a list of bargraphs"
+  [rows]
+  (let [sizes (map title-width rows)]
+    (apply max sizes)))
+
+(defn largest-bar
+  [rows]
+  (let [sizes (map bar-width rows)]
+    (apply max sizes)))
+
+(defn bar-graph
+  "A bar graph widget."
+  [location data]
+  (let [title (:title data)
+        bars (:items data)
+        t-width (largest-title bars)
+        bar-width (largest-bar bars)
+        graph-width (+ t-width bar-width)
+        origin-x (:x location)
+        origin-y (:y location)
+        width (if (< (:w location) graph-width)
+                graph-width
+                (:w location))
+        graph-height (* 3 (count bars))
+        height (if (< (:h location) (+ 2 graph-height))
+                 (+ 2 graph-height)
+                 (:h location))
+        max-x (+ origin-x width)
+        max-y (+ origin-y height)
+        center-x (int (/ max-x 2))
+        center-y (int (/ max-y 2))
+        bar-x (+ t-width origin-x)
+        bar-y (- center-y (/ graph-height 2))]
+    (window {:x origin-x
+             :y origin-y
+             :w width
+             :h height}
+            {:title title})
+    (doall (map-indexed #(bargraph-row {:x bar-x
+                                 :y (+ bar-y (* %1 3))
+                                 :w width :h height}
+                                %2)
+                        bars))))
 
 (defn develop
   "Some basic tests of the systems."
@@ -125,20 +184,29 @@
   (start)
   (let [window-size (t/get-size TERM)
         window-max [(dec (first window-size))
-                    (dec (second window-size))]]
-    ;(bar {:x 0 :y 0 :w 20 :h 3}
-         ;{:color :green})
+                    (dec (second window-size))]
+        center-x (/ (first window-max) 2)
+        center-y (/ (second window-max) 2)]
+    ;(fill-color {:x 10 :y 1 :w 20 :h 3} :red)
     ;(box {:x 0 :y 0 :h 40 :w 20})
+    ;(bar {:x 10 :y 10 :w 20 :h 3}
+         ;{:color :green})
     ;(window {:x 0 :y 0 :w (first window-max) :h (second window-max)}
             ;{:title "Develop"})
-    (bargraph-row {:x 0 :y 0 :w 20 :h 20}
-                  {:title "bar 1"
-                   :val 4
-                   :color :green})
-;    (bar-graph 0 0 (first window-max) (second window-max)
-               ;{:title "Good old bar graph"
-                ;:items {:title "fun"
-                        ;:val 3
-                        ;:color :red}})
+    ;(bargraph-row {:x 10 :y 0 :w 20 :h 20}
+                  ;{:title "2017-04-23 (4)"
+                   ;:val 5
+                   ;:color :green})
+    (bar-graph {:x 0 :y 0 :w 0 :h 0}
+               {:title "Bar graph test"
+                :items [{:title "Long line"
+                         :val 40
+                         :color :red}
+                        {:title "2017-04-23"
+                         :val 4
+                         :color :green}
+                        {:title "Yellow!"
+                         :val 20
+                         :color :yellow}]})
     (refresh)
     (t/get-key-blocking TERM)))
