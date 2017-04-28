@@ -277,11 +277,11 @@
       ; Set the icon depending on the forcast.
       (case main-forcast
         "Clear" (ascii-sunny icon-location)
-        "Cloudy" (ascii-cloudy icon-location)
+        "Clouds" (ascii-cloudy icon-location)
         "Fog" (ascii-misty icon-location)
         "Mist" (ascii-misty icon-location)
         "Rain" (ascii-stormy icon-location)
-        :default (ascii-sunny icon-location)))
+        (ascii-sunny icon-location)))
     ; Display textual information.
     (write (inc origin-x) (+ 2 origin-y) (str " " main-forcast " - " description))
     (write (inc origin-x) (+ 4 origin-y) (str "   Current Temp: "
@@ -321,7 +321,7 @@
                    ;:val 5
                    ;:color :green})
     (bar-graph {:x x3 :y y3 :w width :h height}
-               {:title "Bar graph test"
+               {:title "Bar graph test - Years"
                 :items [{:title "Alex's age"
                          :val 24
                          :color :yellow}
