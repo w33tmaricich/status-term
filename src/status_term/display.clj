@@ -206,18 +206,27 @@
   [location]
   (let [x (:x location)
         y (:y location)]
-    (write (+ 3 x) y           "___"       )
-    (write (+ 2 x) (inc y)    "(   )"      )
-    (write x (+ 2 y)        "(___)__)"     )))
+    (write (+ 3 x) (inc y)     "___"       )
+    (write (+ 2 x) (+ 2 y)    "(   )"      )
+    (write x (+ 3 y)        "(___)__)"     )))
+
+(defn ascii-misty
+  "Draws ascii mist."
+  [location]
+  (let [x (:x location)
+        y (:y location)]
+    (write (+ 2 x) (inc y)  "--")
+    (write (+ 1 x) (+ 2 y) "-------___")
+    (write (+ 3 x) (+ 3 y)   "____---")))
 
 (defn ascii-stormy
   "A stormy cloud!"
   [location]
   (let [x (:x location)
         y (:y location)]
-    (ascii-cloudy location)
+    (ascii-cloudy {:x x :y (dec y)})
     (write (inc x) (+ 3 y)   "` `_/`"   )
-    (write x (+ 4 y)        "` `/ ` `"  )))
+    (write (+ 2 x) (+ 4 y)          "`/ ` `"  )))
 
 (defn ascii-sunny
   "Draws an ascii art sun!"
@@ -260,10 +269,23 @@
         humidity (:humidity main)
         visibility (:visibility forcast)
         coord (:coord forcast)]
+    ; Create the window.
     (window location {:title (str "Weather - " city)})
-    (ascii-cloudy {:x (+ (:x location) 4) :y (+ 2 (:y location))})
+    (let [icon-x (+ 4 (:x location))
+          icon-y (+ 2 (:y location))
+          icon-location {:x icon-x :y icon-y}]
+      ; Set the icon depending on the forcast.
+      (case main-forcast
+        "Clear" (ascii-sunny icon-location)
+        "Cloudy" (ascii-cloudy icon-location)
+        "Fog" (ascii-misty icon-location)
+        "Mist" (ascii-misty icon-location)
+        "Rain" (ascii-stormy icon-location)
+        :default (ascii-sunny icon-location)))
+    ; Display textual information.
     (write (inc origin-x) (+ 2 origin-y) (str " " main-forcast " - " description))
-    (write (inc origin-x) (+ 4 origin-y) (str "   Current Temp: " temp-f "\u00b0F/"
+    (write (inc origin-x) (+ 4 origin-y) (str "   Current Temp: "
+                                              temp-f "\u00b0F/"
                                               temp-c "\u00b0C"))
     (write (inc origin-x) (+ 5 origin-y) (str "           High: "
                                               temp-max-f "\u00b0F/"
@@ -272,8 +294,8 @@
                                               temp-min-f "\u00b0F/"
                                               temp-min-c "\u00b0C"))
     (write (inc origin-x) (+ 8 origin-y) (str "   Humidity: " humidity "%"))
-    (write (inc origin-x) (+ 10 origin-y) (str "   Sunrise: " sunrise))
-    (write (inc origin-x) (+ 11 origin-y) (str "    Sunset: " sunset))))
+    (write (inc origin-x) (+ 10 origin-y) (str "   Sunrise: " sunrise "am"))
+    (write (inc origin-x) (+ 11 origin-y) (str "    Sunset: " sunset "pm"))))
 
 (defn develop
   "Some basic tests of the systems."
@@ -309,7 +331,7 @@
                         ;{:title "Yellow!"
                          ;:val 20
                          ;:color :yellow}]})
-    (weather {:x x4 :y y4 :w width :h height}
+    (weather {:x x1 :y y1 :w width :h height}
              {:zip "21061,us"})
     ;(ascii-stormy {:x 19 :y 0})
     ;(ascii-cloudy {:x 10 :y 0})
