@@ -18,21 +18,21 @@ future.
 
 ### Supported Features
 
-None so far...
+- Show pretty bar graphs of whatever metrics please you!
+- Display the weather in the zipcode of your choosing!
 
 ### Features in Development
 
-- Creating a dynamic paneling system to display information.
+- Graphics for the weather widget!
 
 ### Proposed Features
 
-- Displaying the current date and time.
-- Displaying the current weather in your area.
+- Display system information.
 - Displaying your git commits on a particular project.
-- Displaying everyones commits on a particular porject(single branch).
+- Displaying everyones commits on a particular project(single branch).
 - Displaying RSS feeds.
-- Something cute.
-- Something geeky.
+- ? Something cute.
+- ? Header bar.
 
 ## Installation
 

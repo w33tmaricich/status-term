@@ -201,10 +201,39 @@
     (str hour ":" minute)))
 
 
+(defn ascii-cloudy
+  "Draws an ascii cloud."
+  [location]
+  (let [x (:x location)
+        y (:y location)]
+    (write (+ 3 x) y           "___"       )
+    (write (+ 2 x) (inc y)    "(   )"      )
+    (write x (+ 2 y)        "(___)__)"     )))
+
+(defn ascii-stormy
+  "A stormy cloud!"
+  [location]
+  (let [x (:x location)
+        y (:y location)]
+    (ascii-cloudy location)
+    (write (inc x) (+ 3 y)   "` `_/`"   )
+    (write x (+ 4 y)        "` `/ ` `"  )))
+
+(defn ascii-sunny
+  "Draws an ascii art sun!"
+  [location]
+  (let [x (:x location)
+        y (:y location)]
+    (write (+ 4 x) y            "|"      )
+    (write (+ 2 x) (+ 1 y)   "\\ _ /"    )
+    (write x (+ 2 y)        "-= (_) =-"  )
+    (write (+ 2 x) (+ 3 y)    "/   \\"   )
+    (write (+ 4 x) (+ 4 y)      "|"      )))
+
 (defn weather
   [location data]
-  (let [origin-x (:x location)
-        origin-y (:y location)
+  (let [origin-x (inc (:x location))
+        origin-y (+ 6 (:y location))
         origin-w (:w location)
         origin-h (:h location)
         zip (:zip data)
@@ -232,6 +261,7 @@
         visibility (:visibility forcast)
         coord (:coord forcast)]
     (window location {:title (str "Weather - " city)})
+    (ascii-cloudy {:x (+ (:x location) 4) :y (+ 2 (:y location))})
     (write (inc origin-x) (+ 2 origin-y) (str " " main-forcast " - " description))
     (write (inc origin-x) (+ 4 origin-y) (str "   Current Temp: " temp-f "\u00b0F/"
                                               temp-c "\u00b0C"))
@@ -244,28 +274,6 @@
     (write (inc origin-x) (+ 8 origin-y) (str "   Humidity: " humidity "%"))
     (write (inc origin-x) (+ 10 origin-y) (str "   Sunrise: " sunrise))
     (write (inc origin-x) (+ 11 origin-y) (str "    Sunset: " sunset))))
-
-;(defn cloudy\c
-(defn ascii-sunny
-  "Draws an ascii art sun!"
-  [location]
-  (let [x (:x location)
-        y (:y location)
-        ]
-    (write (+ 4 x) y "|")
-    (write (+ 2 x) (+ 1 y) "\\")
-    (write (+ 6 x) (+ 1 y) "/")
-    (write (+ 4 x) (+ 1 y) "_")
-    (write x (+ 2 y) "-")
-    (write (+ 1 x) (+ 2 y) "=")
-    (write (+ 3 x) (+ 2 y) "(")
-    (write (+ 4 x) (+ 2 y) "_")
-    (write (+ 5 x) (+ 2 y) ")")
-    (write (+ 7 x) (+ 2 y) "=")
-    (write (+ 8 x) (+ 2 y) "-")
-    (write (+ 6 x) (+ 3 y) "\\")
-    (write (+ 2 x) (+ 3 y) "/")
-    (write (+ 4 x) (+ 4 y) "|")))
 
 (defn develop
   "Some basic tests of the systems."
@@ -301,8 +309,10 @@
                         ;{:title "Yellow!"
                          ;:val 20
                          ;:color :yellow}]})
-    ;(weather {:x x4 :y y4 :w width :h height}
-             ;{:zip "21061,us"})
-    (ascii-sunny {:x 0 :y 0})
+    (weather {:x x4 :y y4 :w width :h height}
+             {:zip "21061,us"})
+    ;(ascii-stormy {:x 19 :y 0})
+    ;(ascii-cloudy {:x 10 :y 0})
+    ;(ascii-sunny {:x 0 :y 0})
     (refresh)
     (t/get-key-blocking TERM)))
