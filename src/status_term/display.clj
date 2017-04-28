@@ -320,21 +320,18 @@
                   ;{:title "2017-04-23 (4)"
                    ;:val 5
                    ;:color :green})
-    ;(bar-graph {:x x3 :y y3 :w width :h height}
-               ;{:title "Bar graph test"
-                ;:items [{:title "Long line"
-                         ;:val 15
-                         ;:color :red}
-                        ;{:title "2017-04-23"
-                         ;:val 4
-                         ;:color :green}
-                        ;{:title "Yellow!"
-                         ;:val 20
-                         ;:color :yellow}]})
+    (bar-graph {:x x3 :y y3 :w width :h height}
+               {:title "Bar graph test"
+                :items [{:title "Alex's age"
+                         :val 24
+                         :color :yellow}
+                        {:title "Lucia's age"
+                         :val 23
+                         :color :blue}
+                        {:title "Programming years"
+                         :val 5
+                         :color :red}]})
     (weather {:x x1 :y y1 :w width :h height}
              {:zip "21061,us"})
-    ;(ascii-stormy {:x 19 :y 0})
-    ;(ascii-cloudy {:x 10 :y 0})
-    ;(ascii-sunny {:x 0 :y 0})
     (refresh)
     (t/get-key-blocking TERM)))
