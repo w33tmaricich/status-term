@@ -102,8 +102,14 @@
 (defn bar
   "bar for bar graph."
   [location info]
-  (fill-color location (:color info))
-  (box location))
+  (let [mod-location (if (<= (:w location) 2)
+                       {:x (:x location)
+                        :y (:y location)
+                        :w 3
+                        :h (:h location)}
+                       location)]
+    (fill-color mod-location (:color info))
+    (box mod-location)))
 
 (defn bargraph-row
   "a row of a bar graph"
