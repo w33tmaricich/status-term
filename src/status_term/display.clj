@@ -7,8 +7,6 @@
             [lanterna.terminal :as t]
             [lanterna.screen :as s]))
 
-;(defstruct s-LOCATION
-
 ; Grab the terminal we are writting to.
 (def TERM (t/get-terminal :text))
 (def SCREEN (s/get-screen :text))
@@ -200,6 +198,9 @@
         minute (tt/minute joda)]
     (str hour ":" minute)))
 
+; All ascii art must have dimensions within this range:
+;  width: 10
+;  height: 5
 
 (defn ascii-cloudy
   "Draws an ascii cloud."
@@ -241,10 +242,12 @@
 
 (defn weather
   [location data]
-  (let [origin-x (inc (:x location))
-        origin-y (+ 6 (:y location))
-        origin-w (:w location)
-        origin-h (:h location)
+  ; Put together all the coordinates we will be using.
+  (let [; Constants
+        icon-w 10
+        icon-h 5
+        text-h 10
+        ; Get information about the weather
         zip (:zip data)
         forcast (i/get-weather zip)
         weather (first (:weather forcast))
@@ -268,12 +271,48 @@
         temp-max-c (k->c temp-max-k)
         humidity (:humidity main)
         visibility (:visibility forcast)
-        coord (:coord forcast)]
+        coord (:coord forcast)
+        ; Put everything together into strings to be written.
+        weather-title-str (str "Weather - " city)
+        main-descr-str (str " " main-forcast " - " description)
+        current-temp-str (str "   Current Temp: "
+                              temp-f "\u00b0F/"
+                              temp-c "\u00b0C  ")
+        high-temp-str    (str "           High: "
+                              temp-max-f "\u00b0F/"
+                              temp-max-c "\u00b0C")
+        low-temp-str     (str "            Low: "
+                              temp-min-f "\u00b0F/"
+                              temp-min-c "\u00b0C")
+        humidity-str (str "   Humidity: " humidity "%")
+        sunrise-str (str "   Sunrise: " sunrise "am")
+        sunset-str (str "    Sunset: " sunset "pm")
+        ; Coordinates
+        origin-x (:x location)
+        origin-y (:y location)
+        origin-w (:w location)
+        origin-h (:h location)
+        window-w (if (< origin-w (+ 2 (count current-temp-str)))
+                   (+ (count current-temp-str) 2)
+                   origin-w)
+        window-h (if (< origin-h (+ text-h icon-h))
+                   (+ text-h icon-h)
+                   origin-h)
+        center-x (int (/ (+ origin-x window-w) 2))
+        center-y (int (/ (+ origin-y window-h) 2))
+        text-x (int (- center-x
+                       (/ (count current-temp-str) 2)))
+        text-y (int (- center-y 
+                       (/ text-h 2)))
+        icon-x (int (- center-x icon-h))
+        icon-y (int (- center-y
+                       (/ (+ text-h icon-h) 2)))
+        ]
     ; Create the window.
-    (window location {:title (str "Weather - " city)})
-    (let [icon-x (+ 4 (:x location))
-          icon-y (+ 2 (:y location))
-          icon-location {:x icon-x :y icon-y}]
+    (window {:x origin-x :y origin-y
+             :w window-w :h window-h}
+            {:title weather-title-str})
+    (let [icon-location {:x icon-x :y icon-y}]
       ; Set the icon depending on the forcast.
       (case main-forcast
         "Clear" (ascii-sunny icon-location)
@@ -283,19 +322,13 @@
         "Rain" (ascii-stormy icon-location)
         (ascii-sunny icon-location)))
     ; Display textual information.
-    (write (inc origin-x) (+ 2 origin-y) (str " " main-forcast " - " description))
-    (write (inc origin-x) (+ 4 origin-y) (str "   Current Temp: "
-                                              temp-f "\u00b0F/"
-                                              temp-c "\u00b0C"))
-    (write (inc origin-x) (+ 5 origin-y) (str "           High: "
-                                              temp-max-f "\u00b0F/"
-                                              temp-max-c "\u00b0C"))
-    (write (inc origin-x) (+ 6 origin-y) (str "            Low: "
-                                              temp-min-f "\u00b0F/"
-                                              temp-min-c "\u00b0C"))
-    (write (inc origin-x) (+ 8 origin-y) (str "   Humidity: " humidity "%"))
-    (write (inc origin-x) (+ 10 origin-y) (str "   Sunrise: " sunrise "am"))
-    (write (inc origin-x) (+ 11 origin-y) (str "    Sunset: " sunset "pm"))))
+    (write text-x (+ 2 text-y) main-descr-str)
+    (write text-x (+ 4 text-y) current-temp-str)
+    (write text-x (+ 5 text-y) high-temp-str)
+    (write text-x (+ 6 text-y) low-temp-str)
+    (write text-x (+ 8 text-y) humidity-str)
+    (write text-x (+ 10 text-y) sunrise-str)
+    (write text-x (+ 11 text-y) sunset-str)))
 
 (defn develop
   "Some basic tests of the systems."
@@ -320,7 +353,7 @@
                   ;{:title "2017-04-23 (4)"
                    ;:val 5
                    ;:color :green})
-    (bar-graph {:x x3 :y y3 :w width :h height}
+    (bar-graph {:x x2 :y y2 :w width :h height}
                {:title "Bar graph test - Years"
                 :items [{:title "Alex's age"
                          :val 24
