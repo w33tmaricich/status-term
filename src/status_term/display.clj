@@ -1,5 +1,6 @@
 (ns status-term.display
   (:require [status-term.internet :as i]
+            [status-term.git :as g]
             [clj-time.core :as tt]
             [clj-time.coerce :as c]
             [clj-time.format :as f]
@@ -330,6 +331,41 @@
     (write text-x (+ 10 text-y) sunrise-str)
     (write text-x (+ 11 text-y) sunset-str)))
 
+(defn git-status
+  "Returns the current status of a particular git repo."
+  [location data]
+  (let [; Retrieve important information.
+        repo (:repo data)
+        path (:path data)
+        commits (g/your-commits data)
+        weekly-commits (g/weekly-commits data)
+        ; Build view text.
+        window-title "Commits by Project"
+        ]
+  (window location {:title window-title})))
+
+(defn create-bar-data-week
+  "Creates data needed for the bar graph based on git input"
+  [git-input]
+  (let [email (:email git-input)
+        repo (:repo git-input)
+        path (:path git-input)
+        commits (g/weekly-commits git-input)]
+    {:title (str repo " (" (count commits) ")")
+     :val (count commits)
+     :color :green}))
+
+(defn git-commits-count-week
+  "Displays a count of commits per project within a weekly timeframe."
+  [location data]
+  (let [projects (into [] (map create-bar-data-week data))
+        bar-graph-data {:title "Commits within a week"
+                        :items projects}]
+    (if (count (:items bar-graph-data))
+      (bar-graph location bar-graph-data)
+      (window location {:title "No weekly commits to display"}))))
+
+
 (defn develop
   "Some basic tests of the systems."
   [args]
@@ -366,5 +402,22 @@
                          :color :red}]})
     (weather {:x x1 :y y1 :w width :h height}
              {:zip "21061,us"})
+    (git-status {:x x3 :y y3 :w width :h height}
+                     {:email "w33tmaricich@gmail.com"
+                      :repo "status-term"
+                      :path "/home/w33t/code/status-term"})
+    (git-commits-count-week {:x x4 :y y4 :w width :h height}
+                            [{:email "w33tmaricich@gmail.com"
+                              :repo "status-term"
+                              :path "/home/w33t/code/status-term"}
+                             {:email "w33tmaricich@gmail.com"
+                              :repo "posture"
+                              :path "/home/w33t/code/posture"}
+                             {:email "w33tmaricich@gmail.com"
+                              :repo "streammanager"
+                              :path "/home/w33t/code/skyline/streammanager"}
+                             {:email "w33tmaricich@gmail.com"
+                              :repo "dot-py"
+                              :path "/home/w33t/code/dot-py"}])
     (refresh)
     (t/get-key-blocking TERM)))

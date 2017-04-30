@@ -20,14 +20,15 @@ future.
 
 - Show pretty bar graphs of whatever metrics please you!
 - Display the weather in the zipcode of your choosing!
+- Graphics for the weather widget!
+- Weekly commit count bar graphs!
 
 ### Features in Development
 
-- Graphics for the weather widget!
+- Display system information.
 
 ### Proposed Features
 
-- Display system information.
 - Displaying your git commits on a particular project.
 - Displaying everyones commits on a particular project(single branch).
 - Displaying RSS feeds.
