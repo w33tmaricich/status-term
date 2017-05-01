@@ -24,8 +24,6 @@
   (t/start TERM)
   (s/start SCREEN))
 
-; Refresh the screen.
-(defn refresh [] (s/redraw SCREEN))
 
 ; Make sure when we write we are using put-string on screen.
 (def write (partial s/put-string SCREEN))
@@ -48,6 +46,14 @@
   "Repeats a character to create a string."
   [character length]
   (apply str (repeat length character)))
+
+; Refresh the screen.
+(defn refresh [] 
+  (let [size (t/get-size TERM)
+        width (first size)
+        height (second size)]
+    (t/clear TERM)
+    (s/redraw SCREEN)))
 
 (defn box
   "Draws a unicode box."
@@ -408,22 +414,25 @@
                          :color :red}]})
     (weather {:x x1 :y y1 :w width :h height}
              {:zip "21061,us"})
-    (git-status {:x x3 :y y3 :w width :h height}
-                     {:email "w33tmaricich@gmail.com"
-                      :repo "status-term"
-                      :path "/home/w33t/code/status-term"})
+    ;(git-status {:x x3 :y y3 :w width :h height}
+                     ;{:email "w33tmaricich@gmail.com"
+                      ;:repo "status-term"
+                      ;:path "/home/w33t/code/status-term"})
     (git-commits-count-week {:x x4 :y y4 :w width :h height}
                             [{:email "w33tmaricich@gmail.com"
                               :repo "status-term"
-                              :path "/home/w33t/code/status-term"}
+                              :path "/home/amaricich/code/personal/status-term"}
+                              ;:path "/home/w33t/code/status-term"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "posture"
-                              :path "/home/w33t/code/posture"}
+                              :path "/home/amaricich/code/personal/posture"}
+                              ;:path "/home/w33t/code/posture"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "streammanager"
-                              :path "/home/w33t/code/skyline/streammanager"}
+                              :path "/home/amaricich/code/streammanager"}
+                              ;:path "~/code/skyline/streammanager"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "dot-py"
-                              :path "/home/w33t/code/dot-py"}])
+                              :path "/home/amaricich/code/dot-py"}])
     (refresh)
     (t/get-key-blocking TERM)))
