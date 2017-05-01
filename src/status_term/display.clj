@@ -1,5 +1,6 @@
 (ns status-term.display
-  (:require [status-term.internet :as i]
+  (:require [clojure.string :as string]
+            [status-term.internet :as i]
             [status-term.git :as g]
             [clj-time.core :as tt]
             [clj-time.coerce :as c]
@@ -10,7 +11,20 @@
 
 ; Grab the terminal we are writting to.
 (def TERM (t/get-terminal :text))
-(def SCREEN (s/get-screen :text))
+(declare SCREEN)
+(def TERM-SIZE (ref [0 0]))
+
+(defn handle-resize [cols rows]
+  (dosync (ref-set TERM-SIZE [cols rows])))
+
+; Refresh the screen.
+(defn refresh [cols rows]
+  (handle-resize cols rows)
+  (t/clear TERM)
+  (s/redraw SCREEN))
+
+(def SCREEN (s/get-screen :text {:resize-listener refresh}))
+
 (def THIN-HORIZONTAL-LINE "\u2500")
 (def THIN-VERTICAL-LINE "\u2502")
 (def THIN-TOP-LEFT "\u250c")
@@ -18,12 +32,12 @@
 (def THIN-BOTTOM-LEFT "\u2514")
 (def THIN-BOTTOM-RIGHT "\u2518")
 
+
 (defn start
   "starts the terminal and screen session connections."
   []
   (t/start TERM)
   (s/start SCREEN))
-
 
 ; Make sure when we write we are using put-string on screen.
 (def write (partial s/put-string SCREEN))
@@ -47,13 +61,9 @@
   [character length]
   (apply str (repeat length character)))
 
-; Refresh the screen.
-(defn refresh [] 
-  (let [size (t/get-size TERM)
-        width (first size)
-        height (second size)]
-    (t/clear TERM)
-    (s/redraw SCREEN)))
+(defn truncate
+  [s n]
+  (subs s 0 (min (count s) n)))
 
 (defn box
   "Draws a unicode box."
@@ -317,7 +327,7 @@
         center-y (int (/ (+ origin-y window-h) 2))
         text-x (int (- center-x
                        (/ (count current-temp-str) 2)))
-        text-y (int (- center-y 
+        text-y (int (- center-y
                        (/ text-h 2)))
         icon-x (int (- center-x icon-h))
         icon-y (int (- center-y
@@ -367,7 +377,7 @@
         commits (g/weekly-commits git-input)]
     {:title (str repo " (" (count commits) ")")
      :val (count commits)
-     :color :green}))
+     :color :yellow}))
 
 (defn git-commits-count-week
   "Displays a count of commits per project within a weekly timeframe."
@@ -379,48 +389,44 @@
       (bar-graph location bar-graph-data)
       (window location {:title "No weekly commits to display"}))))
 
+(defn commit-log-str
+  "Creates a commit log string"
+  [commit max-size]
+  (let [k (-> commit keys str)
+        id (truncate (-> commit :id str) 7)
+        t (-> commit :time str)
+        message (first (string/split (:message commit) #"\n"))
+        return-str (str "* " id " " message " (" t ")")]
+    (truncate return-str (- max-size 2))))
+
+(defn git-commits
+  "Displays a list of commits like a llog"
+  [location data]
+  (let [repo (:repo data)
+        commits (g/project-commits data)
+        window-title (str "Commits: " repo)]
+    (window location {:title window-title})
+    (write (inc (:x location))
+           (inc (:y location))
+           (str (commit-log-str (first commits) (:w location))))))
 
 (defn develop
   "Some basic tests of the systems."
   [args]
   (start)
-  (let [window-size (t/get-size TERM)
-        window-max [(dec (first window-size))
-                    (dec (second window-size))]
+  (let [window-max [(dec (first (deref TERM-SIZE)))
+                    (dec (second (deref TERM-SIZE)))]
         width (/ (first window-max) 2)
         height (/ (second window-max) 2)
         x1 0 y1 0
         x2 (inc width) y2 y1
         x3 x1 y3 (inc height)
         x4 (inc width) y4 (inc height)]
-    ;(fill-color {:x 10 :y 1 :w 20 :h 3} :red)
-    ;(box {:x 0 :y 0 :h 40 :w 20})
-    ;(bar {:x 10 :y 10 :w 20 :h 3}
-         ;{:color :green})
-    ;(window {:x 0 :y 0 :w (first window-max) :h (second window-max)}
-            ;{:title "Develop"})
-    ;(bargraph-row {:x 10 :y 0 :w 20 :h 20}
-                  ;{:title "2017-04-23 (4)"
-                   ;:val 5
-                   ;:color :green})
-    (bar-graph {:x x2 :y y2 :w width :h height}
-               {:title "Bar graph test - Years"
-                :items [{:title "Alex's age"
-                         :val 24
-                         :color :yellow}
-                        {:title "Lucia's age"
-                         :val 23
-                         :color :blue}
-                        {:title "Programming years"
-                         :val 5
-                         :color :red}]})
+
     (weather {:x x1 :y y1 :w width :h height}
              {:zip "21061,us"})
-    ;(git-status {:x x3 :y y3 :w width :h height}
-                     ;{:email "w33tmaricich@gmail.com"
-                      ;:repo "status-term"
-                      ;:path "/home/w33t/code/status-term"})
-    (git-commits-count-week {:x x4 :y y4 :w width :h height}
+
+    (git-commits-count-week {:x x2 :y y2 :w width :h height}
                             [{:email "w33tmaricich@gmail.com"
                               :repo "status-term"
                               :path "/home/amaricich/code/personal/status-term"}
@@ -436,5 +442,12 @@
                              {:email "w33tmaricich@gmail.com"
                               :repo "dot-py"
                               :path "/home/amaricich/code/dot-py"}])
-    (refresh)
+
+    (git-commits {:x x3 :y y3 :w width :h height}
+                 {:repo "status-term"
+                  :path "/home/amaricich/code/personal/status-term"})
+    (refresh
+      (first window-max)
+      (second window-max))
+
     (t/get-key-blocking TERM)))

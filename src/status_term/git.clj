@@ -8,8 +8,7 @@
 (defn project-commits
   "returns a list of all commits in the repo"
   [project-info]
-  (let [you (:email project-info)
-        repo (load-repo (:path project-info))
+  (let [repo (load-repo (:path project-info))
         logs (git-log repo)]
     (map #(commit-info repo %) logs)))
 
