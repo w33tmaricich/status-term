@@ -389,15 +389,39 @@
       (bar-graph location bar-graph-data)
       (window location {:title "No weekly commits to display"}))))
 
-(defn commit-log-str
+(defn write-commit-log
   "Creates a commit log string"
-  [commit max-size]
-  (let [k (-> commit keys str)
+  [location commit]
+  (let [x (:x location)
+        y (:y location)
+        width (:w location)
+        height (:h location)
+        k (-> commit keys str)
         id (truncate (-> commit :id str) 7)
         t (-> commit :time str)
         message (first (string/split (:message commit) #"\n"))
         return-str (str "* " id " " message " (" t ")")]
-    (truncate return-str (- max-size 2))))
+    (if (> width 5)
+      (do
+        (write (inc x) y "*")
+        (if (> width 12)
+          (do
+            (write (+ 3 x)
+                   y
+                   id
+                   {:fg :red})
+            (if (> width (+ 12 (count message)))
+              (do
+                (write (+ 12 x)
+                       y
+                       message)
+                (if (> width (+ 12
+                                (count message)
+                                (count t)))
+                  (write (+ 13 (count message) x)
+                         y
+                         t
+                         {:fg :yellow}))))))))))
 
 (defn git-commits
   "Displays a list of commits like a llog"
@@ -406,9 +430,10 @@
         commits (g/project-commits data)
         window-title (str "Commits: " repo)]
     (window location {:title window-title})
-    (write (inc (:x location))
-           (inc (:y location))
-           (str (commit-log-str (first commits) (:w location))))))
+    (write-commit-log {:x (inc (:x location))
+                       :y (inc (:y location))
+                       :w (:w location)
+                       :h (:h location)} (first commits))))
 
 (defn develop
   "Some basic tests of the systems."
