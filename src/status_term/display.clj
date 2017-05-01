@@ -428,12 +428,24 @@
   [location data]
   (let [repo (:repo data)
         commits (g/project-commits data)
-        window-title (str "Commits: " repo)]
+        window-title (str "Commits: " repo)
+        ;coordinates
+        origin-x (:x location)
+        origin-y (:y location)
+        origin-w (:w location)
+        origin-h (:h location)
+        text-x (inc origin-x)
+        text-y (+ 2 origin-y)
+        max-displayed (- origin-h 4)]
     (window location {:title window-title})
-    (write-commit-log {:x (inc (:x location))
-                       :y (inc (:y location))
-                       :w (:w location)
-                       :h (:h location)} (first commits))))
+    (doall (map-indexed
+             (fn [index commit]
+               (if (< index max-displayed)
+                 (write-commit-log {:x text-x
+                                    :y (+ text-y index)
+                                    :w origin-w
+                                    :h origin-h} commit)))
+             commits))))
 
 (defn develop
   "Some basic tests of the systems."
