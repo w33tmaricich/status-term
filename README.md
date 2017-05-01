@@ -22,6 +22,7 @@ future.
 - Display the weather in the zipcode of your choosing!
 - Graphics for the weather widget!
 - Weekly commit count bar graphs!
+- Displaying everyones commits on a particular project.
 
 ### Features in Development
 
@@ -29,8 +30,6 @@ future.
 
 ### Proposed Features
 
-- Displaying your git commits on a particular project.
-- Displaying everyones commits on a particular project(single branch).
 - Displaying RSS feeds.
 - ? Something cute.
 - ? Header bar.
