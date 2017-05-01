@@ -181,7 +181,9 @@
         max-y (+ origin-y height)
         center-x (+ origin-x (/ width 2))
         center-y (+ origin-y (/ height 2))
-        bar-x (+ t-width origin-x)
+        ;bar-x (+ t-width origin-x)
+        extra-x (int (/ (- width graph-width) 2))
+        bar-x (int (+ (/ graph-width 2) extra-x origin-x))
         bar-y (- center-y (/ graph-height 2))]
     (window {:x origin-x
              :y origin-y
