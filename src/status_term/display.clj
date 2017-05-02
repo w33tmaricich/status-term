@@ -447,6 +447,23 @@
                                     :h origin-h} commit)))
              commits))))
 
+(defn clock
+  "Displays the date and time"
+  [location]
+  (let [; data
+        joda (l/local-now)
+        hour (tt/hour joda)
+        minute (tt/minute joda)
+        month (tt/month joda)
+        day (tt/day joda)
+        year (tt/year joda)
+        ; strings
+        time-string (str hour ":" minute " " month "/"
+                         day "/" year)
+        ; 
+        ]
+    (window location {:title time-string})))
+
 (defn develop
   "Some basic tests of the systems."
   [args]
@@ -466,23 +483,26 @@
     (git-commits-count-week {:x x2 :y y2 :w width :h height}
                             [{:email "w33tmaricich@gmail.com"
                               :repo "status-term"
-                              :path "/home/amaricich/code/personal/status-term"}
-                              ;:path "/home/w33t/code/status-term"}
+                              ;:path "/home/amaricich/code/personal/status-term"}
+                              :path "/home/w33t/code/status-term"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "posture"
-                              :path "/home/amaricich/code/personal/posture"}
-                              ;:path "/home/w33t/code/posture"}
+                              ;:path "/home/amaricich/code/personal/posture"}
+                              :path "/home/w33t/code/posture"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "streammanager"
-                              :path "/home/amaricich/code/streammanager"}
-                              ;:path "~/code/skyline/streammanager"}
+                              ;:path "/home/amaricich/code/streammanager"}
+                              :path "/home/w33t/code/skyline/streammanager"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "dot-py"
-                              :path "/home/amaricich/code/dot-py"}])
+                              ;:path "/home/amaricich/code/dot-py"}])
+                              :path "/home/w33t/code/dot-py"}])
 
     (git-commits {:x x3 :y y3 :w width :h height}
                  {:repo "status-term"
-                  :path "/home/amaricich/code/personal/status-term"})
+                  ;:path "/home/amaricich/code/personal/status-term"})
+                  :path "/home/w33t/code/status-term"})
+    (clock {:x x4 :y y4 :w width :h height})
     (refresh
       (first window-max)
       (second window-max))
