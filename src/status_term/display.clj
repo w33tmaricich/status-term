@@ -6,6 +6,7 @@
             [clj-time.coerce :as c]
             [clj-time.format :as f]
             [clj-time.local :as l]
+            [cpustat.core :as cpustat]
             [lanterna.terminal :as t]
             [lanterna.screen :as s]))
 
@@ -457,12 +458,37 @@
         month (tt/month joda)
         day (tt/day joda)
         year (tt/year joda)
+        os-name (System/getProperty "os.name")
+        os-version (System/getProperty "os.version")
+        cpu (cpustat/info)
+        hostname (:hostname cpu)
+        cpu-info (:cpu cpu)
+        cpu-type (:name cpu-info)
+        cpu-cores (:cores cpu-info)
         ; strings
-        time-string (str hour ":" minute " " month "/"
-                         day "/" year)
-        ; 
+        time-string (str hour ":" minute " " year "-"
+                         (if (< month 10)
+                           (str "0" month)
+                           month)
+                         "-"
+                         (if (< day 10)
+                           (str "0" day)
+                           day))
+        ; coordinates
+        origin-x (:x location)
+        origin-y (:y location)
+        origin-w (:w location)
+        origin-h (:h location)
+        text-x (inc origin-x)
+        text-y (inc origin-y)
         ]
-    (window location {:title time-string})))
+    (cpustat/stop-cpustat)
+    (window location {:title time-string})
+    (write text-x text-y hostname)
+    (write text-x (+ 2 text-y) (str "OS: " os-name " " os-version))
+    (write text-x (+ 4 text-y) (str "CPU: " cpu-type))
+    (write text-x (+ 5 text-y) (str "     " cpu-cores " cores"))
+    ))
 
 (defn develop
   "Some basic tests of the systems."
@@ -483,25 +509,25 @@
     (git-commits-count-week {:x x2 :y y2 :w width :h height}
                             [{:email "w33tmaricich@gmail.com"
                               :repo "status-term"
-                              ;:path "/home/amaricich/code/personal/status-term"}
-                              :path "/home/w33t/code/status-term"}
+                              :path "/home/amaricich/code/personal/status-term"}
+                              ;:path "/home/w33t/code/status-term"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "posture"
-                              ;:path "/home/amaricich/code/personal/posture"}
-                              :path "/home/w33t/code/posture"}
+                              :path "/home/amaricich/code/personal/posture"}
+                              ;:path "/home/w33t/code/posture"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "streammanager"
-                              ;:path "/home/amaricich/code/streammanager"}
-                              :path "/home/w33t/code/skyline/streammanager"}
+                              :path "/home/amaricich/code/streammanager"}
+                              ;:path "/home/w33t/code/skyline/streammanager"}
                              {:email "w33tmaricich@gmail.com"
                               :repo "dot-py"
-                              ;:path "/home/amaricich/code/dot-py"}])
-                              :path "/home/w33t/code/dot-py"}])
+                              :path "/home/amaricich/code/dot-py"}])
+                              ;:path "/home/w33t/code/dot-py"}])
 
     (git-commits {:x x3 :y y3 :w width :h height}
                  {:repo "status-term"
-                  ;:path "/home/amaricich/code/personal/status-term"})
-                  :path "/home/w33t/code/status-term"})
+                  :path "/home/amaricich/code/personal/status-term"})
+                  ;:path "/home/w33t/code/status-term"})
     (clock {:x x4 :y y4 :w width :h height})
     (refresh
       (first window-max)

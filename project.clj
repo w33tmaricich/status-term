@@ -7,6 +7,7 @@
                  [clj-http "3.5.0"]
                  [clj-time "0.13.0"]
                  [clj-jgit "0.8.9"]
+                 [net.info9/clj-cpustat "0.2.0"]
                  [org.clojure/data.json "0.2.6"]
                  [clojure-lanterna "0.9.7"]]
   :main ^:skip-aot status-term.core
