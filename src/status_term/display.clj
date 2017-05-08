@@ -448,7 +448,7 @@
                                     :h origin-h} commit)))
              commits))))
 
-(defn clock
+(defn computer-stats
   "Displays the date and time"
   [location]
   (let [; data
@@ -474,20 +474,26 @@
                          (if (< day 10)
                            (str "0" day)
                            day))
+        os-string (str "OS: " os-name " " os-version)
+        cpu-string (str "CPU: " cpu-type)
+        cores-string (str "     " cpu-cores " cores")
         ; coordinates
         origin-x (:x location)
         origin-y (:y location)
         origin-w (:w location)
         origin-h (:h location)
-        text-x (inc origin-x)
-        text-y (inc origin-y)
+        text-h 6
+        text-x (+ 1
+                  origin-x
+                  (- (int (/ origin-w 2)) (int (/ (count cpu-string) 2))))
+        text-y (+ 1 origin-y (- (int (/ origin-h 2)) (int (/ text-h 2))))
         ]
     (cpustat/stop-cpustat)
     (window location {:title time-string})
     (write text-x text-y hostname)
-    (write text-x (+ 2 text-y) (str "OS: " os-name " " os-version))
-    (write text-x (+ 4 text-y) (str "CPU: " cpu-type))
-    (write text-x (+ 5 text-y) (str "     " cpu-cores " cores"))
+    (write text-x (+ 2 text-y) os-string)
+    (write text-x (+ 4 text-y) cpu-string)
+    (write text-x (+ 5 text-y) cores-string)
     ))
 
 (defn develop
@@ -528,7 +534,7 @@
                  {:repo "status-term"
                   :path "/home/amaricich/code/personal/status-term"})
                   ;:path "/home/w33t/code/status-term"})
-    (clock {:x x4 :y y4 :w width :h height})
+    (computer-stats {:x x4 :y y4 :w width :h height})
     (refresh
       (first window-max)
       (second window-max))
