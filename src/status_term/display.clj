@@ -514,26 +514,26 @@
 
     (git-commits-count-week {:x x2 :y y2 :w width :h height}
                             [{:email "w33tmaricich@gmail.com"
-                              :repo "status-term"
-                              :path "/home/amaricich/code/personal/status-term"}
-                              ;:path "/home/w33t/code/status-term"}
+                              :repo "enlightenment"
+                              ;:path "/home/amaricich/code/personal/status-term"}
+                              :path "/home/w33t/code/enlightenment"}
                              {:email "w33tmaricich@gmail.com"
-                              :repo "posture"
-                              :path "/home/amaricich/code/personal/posture"}
-                              ;:path "/home/w33t/code/posture"}
+                              :repo "poseidon"
+                              ;:path "/home/amaricich/code/personal/posture"}
+                              :path "/home/w33t/code/skyline/poseidon"}
                              {:email "w33tmaricich@gmail.com"
-                              :repo "streammanager"
-                              :path "/home/amaricich/code/streammanager"}
-                              ;:path "/home/w33t/code/skyline/streammanager"}
+                              :repo "vidappl4"
+                              ;:path "/home/amaricich/code/streammanager"}
+                              :path "/home/w33t/code/skyline/vidappl4"}
                              {:email "w33tmaricich@gmail.com"
-                              :repo "dot-py"
-                              :path "/home/amaricich/code/dot-py"}])
-                              ;:path "/home/w33t/code/dot-py"}])
+                              :repo "kawa"
+                              ;:path "/home/amaricich/code/dot-py"}])
+                              :path "/home/w33t/code/z.lib/kawa"}])
 
     (git-commits {:x x3 :y y3 :w width :h height}
-                 {:repo "status-term"
-                  :path "/home/amaricich/code/personal/status-term"})
-                  ;:path "/home/w33t/code/status-term"})
+                 {:repo "kawa"
+                  ;:path "/home/amaricich/code/personal/status-term"})
+                  :path "/home/w33t/code/z.lib/kawa"})
     (computer-stats {:x x4 :y y4 :w width :h height})
     (refresh
       (first window-max)
